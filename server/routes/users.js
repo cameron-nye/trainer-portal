@@ -3,24 +3,17 @@ import db from '../db.js';
 
 const router = express.Router();
 
-
-
 router.post('/:trainerId/target-areas', async (req, res, next) => {
     try {
         const { name } = req.body;
         const { trainerId } = req.params
         const { targetareaid: targetAreaId } = await db.one(`
-            insert into TargetMuscleGroup(
-                Name
-                , UserId
-            )
-            values (
-                $1
-                , $2
-            );
+            insert into TargetMuscleGroup(Name, UserId)
+            values ($1, $2);
 
-            select lastval() targetAreaId;
-        `, name, trainerId)
+            select lastval() targetAreaId;`,
+            name,
+            trainerId)
         res.json({ targetAreaId })
     } catch (error) {
         return next(error)
@@ -30,9 +23,7 @@ router.post('/:trainerId/target-areas', async (req, res, next) => {
 router.delete('/:trainerId/users/:traineeId', async (req, res, next) => {
     try {
         const { trainerId, traineeId } = req.params;
-        await db.none(`
-            update users set IsDelted = '1' where id = $2 and trainerId = $1`
-            , trainerId, traineeId)
+        await db.none(`update Users set IsDeleted = '1' where Id = $2 and TrainerId = $1`, trainerId, traineeId)
         res.send()
     } catch (error) {
         return next(error)
@@ -43,19 +34,16 @@ router.post('/:trainerId/users', async (req, res, next) => {
     try {
         const { firstName, lastName, username } = req.body;
         const { trainerId } = req.params
+
+        const [existingUserId] = await db.query(`select Id from Users where UserName = $1`, username);
+        if (existingUserId) {
+            res.status(406).send(`Username "${username}" is already taken`);
+            return;
+        }
+
         const { userid: userId } = await db.one(`
-            insert into Users(
-                UserName
-                , FirstName
-                , LastName
-                , TrainerId
-            )
-            values (
-                $1
-                , $2
-                , $3
-                , $4
-            );
+            insert into Users(UserName, FirstName, LastName, TrainerId)
+            values ($1, $2, $3, $4);
 
             select lastval() UserId;
         `, [firstName, lastName, username, trainerId])
@@ -82,6 +70,12 @@ router.post('/', async (req, res, next) => {
         const [trainerId] = await db.query(`select Id from Users where UserName = $1`, trainerUsername);
         if (trainerUsername && !trainerId) {
             res.status(406).send(`Trainer Username "${trainerUsername}" does not exist`);
+            return;
+        }
+
+        const [existingUserId] = await db.query(`select Id from Users where UserName = $1`, username);
+        if (existingUserId) {
+            res.status(406).send(`Username "${username}" is already taken`);
             return;
         }
 
@@ -114,13 +108,14 @@ router.get('/', async (req, res, next) => {
             username,
             firstname: firstName,
             lastname: lastName,
-            trainerid: trainerId
+            trainerusername: trainerUsername
         } = await db.one(`
-            select Id, UserName, FirstName, LastName, TrainerId 
-            from Users 
+            select u.Id, u.UserName, u.FirstName, u.LastName, t.Name TrainerUsername
+            from Users u
+            left join Users t on t.Id = u.TrainerId
             where UserName = $1`,
             req.query.username)
-        res.json({ id, username, firstName, lastName, trainerId })
+        res.json({ id, username, firstName, lastName, trainerUsername })
     } catch (error) {
         return next(error)
     }
