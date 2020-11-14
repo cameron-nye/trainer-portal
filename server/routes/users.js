@@ -3,6 +3,34 @@ import db from '../db.js';
 
 const router = express.Router();
 
+router.post('/:trainerId/users', async (req, res, next) => {
+    try {
+        const { firstName, lastName, username } = req.body;
+        const { trainerId } = req.params
+        const { userid: userId } = await db.one(`
+            insert into Users(
+                UserName
+                , FirstName
+                , LastName
+                , TrainerId
+            )
+            values (
+                $1
+                , $2
+                , $3
+                , $4
+            );
+
+            select lastval() UserId;
+        `, [firstName, lastName, username, trainerId])
+        res.json({ userId })
+    } catch (error) {
+        return next(error)
+    }
+});
+
+
+
 router.post('/', async (req, res, next) => {
     try {
         const { username, firstName, lastName, trainerUsername } = req.body;
