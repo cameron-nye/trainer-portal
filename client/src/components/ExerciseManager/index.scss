@@ -1,0 +1,30 @@
+.exercise-manager {
+    header {
+        padding: 2rem;
+        display: flex;
+        align-content: center;
+        justify-content: space-between;
+        button {
+            border: 1px solid;
+            border-radius: .3rem;
+            text-transform: uppercase;
+            padding: .5rem 1rem;
+            cursor: pointer;
+        }
+    }
+    main {
+        padding: 2rem;
+        table {
+            width: 100%;
+            td {
+                padding: .25rem;
+            }
+            thead {
+                font-weight: bold;
+                td {
+                    border-bottom: 1px solid;
+                }
+            }
+        }
+    }
+}

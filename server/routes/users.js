@@ -217,12 +217,12 @@ router.get('/:trainerId/exercises', async (req, res, next) => {
                 select 
                     Id
                     , Name
-                    , Tags,
+                    , Tags
                     , LinkUrl
                 from Exercise
                 where Tags like '%$2%' and UserId = $1
                 limit $3;`,
-                trainerId, workoutId, name, tags, targets),
+                trainerId, searchText, limit),
             db.query(`
                 select distinct
                     etmg.Id
@@ -234,13 +234,13 @@ router.get('/:trainerId/exercises', async (req, res, next) => {
                     select 
                         Id
                         , Name
-                        , Tags,
+                        , Tags
                         , LinkUrl
                     from Exercise
                     where Tags like '%$2%' and UserId = $1
                     limit $3
                 );`,
-                trainerId, workoutId, targets)
+                trainerId, searchText, limit)
         ]);
         res.json({
             exercises: exercises.map(({
