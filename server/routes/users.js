@@ -118,10 +118,10 @@ router.get('/', async (req, res, next) => {
             lastname: lastName,
             trainerusername: trainerUsername
         } = await db.one(`
-            select u.Id, u.UserName, u.FirstName, u.LastName, t.Name TrainerUsername
+            select u.Id, u.UserName, u.FirstName, u.LastName, t.UserName TrainerUsername
             from Users u
             left join Users t on t.Id = u.TrainerId
-            where UserName = $1`,
+            where u.UserName = $1`,
             req.query.username)
         res.json({ id, username, firstName, lastName, trainerUsername })
     } catch (error) {
@@ -211,8 +211,9 @@ router.get('/:trainerId/exercises', async (req, res, next) => {
     try {
         const { searchText, limit } = req.query;
         const { trainerId } = req.params;
-        res.json({
-            exercises: await db.query(`
+
+        const [exercises, exerciseTargetAreas] = await Promise.all([
+            db.query(`
                 select 
                     Id
                     , Name
@@ -221,26 +222,42 @@ router.get('/:trainerId/exercises', async (req, res, next) => {
                 from Exercise
                 where Tags like '%$2%' and UserId = $1
                 limit $3;`,
-                trainerId,
-                searchText,
-                limit).map(({
-                    id,
-                    name,
-                    tags,
-                    linkurl: linkUrl
-                }) => ({
-                    id,
-                    name,
-                    tags,
-                    targetAreas: await db.query(`
-                            select 
-                                etmg.Id
-                                , tmg.Name 
-                            from ExerciseTargetMuscleGroup etmg 
-                            join TargetMuscleGroup tmg on tmg.Id = etmg.TargetMuscleGroupId 
-                            where etmg.ExerciseId = %1`, id)
-                }))
-        })
+                trainerId, workoutId, name, tags, targets),
+            db.query(`
+                select distinct
+                    etmg.Id
+                    , tmg.Name
+                    , etmg.ExerciseId
+                from ExerciseTargetMuscleGroup etmg
+                join TargetMuscleGroup tmg on tmg.Id = etmg.TargetMuscleGroupId
+                where etmg.ExerciseId in (
+                    select 
+                        Id
+                        , Name
+                        , Tags,
+                        , LinkUrl
+                    from Exercise
+                    where Tags like '%$2%' and UserId = $1
+                    limit $3
+                );`,
+                trainerId, workoutId, targets)
+        ]);
+        res.json({
+            exercises: exercises.map(({
+                id,
+                name,
+                tags,
+                linkurl: linkUrl
+            }) => ({
+                id,
+                name,
+                tags,
+                linkUrl,
+                targetAreas: exerciseTargetAreas
+                    .filter(eta => eta.exerciseid === id)
+                    .map(({ id, name }) => ({ id, name }))
+            }))
+        });
     } catch (error) {
         return next(error)
     }
