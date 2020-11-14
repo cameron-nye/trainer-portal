@@ -79,6 +79,12 @@ router.put('/:trainerId/users/:traineeId', async (req, res, next) => {
 router.post('/', async (req, res, next) => {
     try {
         const { username, firstName, lastName, trainerUsername } = req.body;
+        const [trainerId] = await db.query(`select Id from Users where UserName = $1`, trainerUsername);
+        if (trainerUsername && !trainerId) {
+            res.status(406).send(`Trainer Username "${trainerUsername}" does not exist`);
+            return;
+        }
+
         const { userid: userId } = await db.one(`
             insert into Users(
                 UserName
@@ -90,11 +96,11 @@ router.post('/', async (req, res, next) => {
                 $1
                 , $2
                 , $3
-                , (select Id from Users where UserName = $4)
+                , $4
             );
 
             select lastval() UserId;
-        `, [username, firstName, lastName, trainerUsername])
+        `, [username, firstName, lastName, trainerId])
         res.json({ userId })
     } catch (error) {
         return next(error)
