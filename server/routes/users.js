@@ -41,4 +41,29 @@ router.get('/', async (req, res, next) => {
     }
 });
 
+router.get('/:userId/workouts', async (req, res, next) => {
+    try {
+        const workouts =
+            await db.query(`
+            select id, name, tags, userid
+            from workout 
+            where userid = $1`,
+                req.params.userId)
+        res.json({
+            workouts: workouts.map(({
+                id,
+                name,
+                tags,
+                userid: userId
+            }) => ({
+                id,
+                name,
+                tags,
+                userId
+            }))
+        })
+    } catch (error) {
+        return next(error)
+    }
+});
 export default router;
