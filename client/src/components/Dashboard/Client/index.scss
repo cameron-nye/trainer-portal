@@ -1,5 +1,12 @@
 @import '../../../index.scss';
 
 .client-dashboard {
-
+  hr {
+    border-bottom: 2px solid $primary;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    margin-right: auto;
+    margin-left: 0;
+    max-width: 325px;
+  }
 }

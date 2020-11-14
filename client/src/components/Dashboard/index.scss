@@ -1,7 +1,10 @@
 @import '../../index.scss';
 
 .dashboard {
-  h2 {
-    margin-bottom: 2rem;
+	header, main {
+		padding: 2rem;
+  }
+  main {
+    padding-top: 0;
   }
 }

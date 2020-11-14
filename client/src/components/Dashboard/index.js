@@ -11,8 +11,10 @@ const Dashboard = () => {
 
 	return (
 		<div className="dashboard wrapper">
-			<h2>Dashboard</h2>
-			{user.trainerUsername ? <ClientDashboard userId={user.id}/> : <TrainerDashboard />}
+			<header>
+				<h1>Dashboard</h1>
+			</header>
+			<main>{user.trainerUsername ? <ClientDashboard userId={user.id} /> : <TrainerDashboard />}</main>
 		</div>
 	)
 }

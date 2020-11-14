@@ -4,8 +4,18 @@
   border: 1px solid $primary;
   border-radius: 6px;
   background: rgb(255, 151, 151);
-  margin-bottom: 1rem;
+  padding: 1rem;
+  max-width: 325px;
 }
 .complete {
   background: rgb(199, 255, 199);
+}
+.session-card + .session-card {
+  margin-top: 0.5rem;
+}
+
+@media (min-width: 992px) {
+  .session-card {
+    cursor: pointer;
+  }
 }
