@@ -125,23 +125,63 @@ router.delete('/:sessionId', async (req, res, next) => {
     }
 })
 
-router.get('/:sessionId/workouts', async (req, res, next) => {
+router.post('/:sessionId', async (req, res, next) => {
     try {
-        const { searchText, limit } = req.query;
         const { sessionId } = req.params;
-        const workouts = await db.query(`
-            select 
-                w.Id
-                , w.Name
-                , w.Tags
-            from Workout w 
-            left join SessionWorkout sw on sw.WorkoutId = w.Id and sw.SessionId = $1
-            where 
-                sw.Id is null
-                and w.Tags like '%$2%'
-            limit $3;
-        `, sessionId, searchText, limit)
-        res.json({ workouts })
+        const { workoutId, exerciseId } = req.body;
+        if (!workoutId && !exerciseId) {
+            res.status(400).send("must specify workoutId OR exerciseId when creating a SessionWorkout");
+            return;
+        }
+
+        const { sessionworkoutid: id } = await db.one(`                
+                insert into SessionWorkout(SessionId, WorkoutId, Position)
+                select 
+                    $1
+                    , $2
+                    , (
+                        select count(sw.Id) + 1
+                        from Session s 
+                        join SessionWorkouts sw on sw.SessionId = s.Id
+                        where s.Id = $1
+                    ) Count;
+
+                select lastval() SessionWorkoutId;`,
+            sessionId,
+            workoutId
+        )
+
+        const res = { sessionWorkout: { id } }
+        if (workoutId) {
+            const exercises = await db.query(`                
+                insert into SesssionWorkoutExercise(SessionWorkoutId, ExerciseId)
+                select 
+                    $1,
+                    ExerciseId 
+                from WorkoutExercise 
+                where WorkoutId = $2;
+                
+                select 
+                    swe.Id
+                    , e.Name 
+                from SessionWorkoutExercise swe 
+                join Exercise e on e.Id = swe.ExerciseId
+                where swe.SessionWorkoutId = $1`,
+                res.sessionWorkout.id,
+                workoutId);
+            res.sessionWorkout.exercises = exercises;
+        } else if (exerciseId) {
+            const { sesssionworkoutexerciseid: sesssionWorkoutExerciseId, name } = await db.one(`                
+                insert into SesssionWorkoutExercise(SessionWorkoutId, ExerciseId) values ($1, $2);
+                select 
+                    lastval() SesssionWorkoutExerciseId
+                    , (select Name from Exercise where Id = $2) Name;`,
+                res.sessionWorkout.id,
+                exerciseId);
+            res.sessionWorkout.exercises = [{ sesssionWorkoutExerciseId, name }];
+        }
+
+        res.json(res);
     } catch (error) {
         return next(error)
     }

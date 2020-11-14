@@ -3,9 +3,90 @@ import db from '../db.js';
 
 const router = express.Router();
 
+router.get('/:trainerId/target-areas', async (req, res, next) => {
+    try {
+        res.json({
+            targetAreas: await db.query(`select id, name from TargetMuscleGroup where userid = $1`, req.params.trainerId)
+        })
+    } catch (error) {
+        return next(error)
+    }
+});
+
+router.post('/:trainerId/target-areas', async (req, res, next) => {
+    try {
+        const { name } = req.body;
+        const { trainerId } = req.params
+        const { targetareaid: targetAreaId } = await db.one(`
+            insert into TargetMuscleGroup(Name, UserId) values ($1, $2);
+            select lastval() targetAreaId;`,
+            name,
+            trainerId)
+        res.json({ targetAreaId })
+    } catch (error) {
+        return next(error)
+    }
+});
+
+router.delete('/:trainerId/users/:traineeId', async (req, res, next) => {
+    try {
+        const { trainerId, traineeId } = req.params;
+        await db.none(`update Users set IsDeleted = '1' where Id = $2 and TrainerId = $1`, trainerId, traineeId)
+        res.send()
+    } catch (error) {
+        return next(error)
+    }
+})
+
+router.post('/:trainerId/users', async (req, res, next) => {
+    try {
+        const { firstName, lastName, username } = req.body;
+        const { trainerId } = req.params
+
+        const [existingUserId] = await db.query(`select Id from Users where UserName = $1`, username);
+        if (existingUserId) {
+            res.status(406).send(`Username "${username}" is already taken`);
+            return;
+        }
+
+        const { userid: userId } = await db.one(`
+            insert into Users(UserName, FirstName, LastName, TrainerId)
+            values ($1, $2, $3, $4);
+
+            select lastval() UserId;
+        `, [firstName, lastName, username, trainerId])
+        res.json({ userId })
+    } catch (error) {
+        return next(error)
+    }
+});
+
+router.put('/:trainerId/users/:traineeId', async (req, res, next) => {
+    try {
+        const { trainerId, traineeId } = req.params;
+        const { sessions } = req.body;
+        await db.none(`udpate users set DailySchedule = $3 where Id = $2 and TrainerId = $1;`, trainerId, traineeId, sessions)
+        res.send()
+    } catch (error) {
+        return next(error)
+    }
+})
+
 router.post('/', async (req, res, next) => {
     try {
         const { username, firstName, lastName, trainerUsername } = req.body;
+        const [trainerId] = await db.query(`select Id from Users where UserName = $1`, trainerUsername);
+        if (trainerUsername && !trainerId) {
+            res.status(406).send(`Trainer Username "${trainerUsername}" does not exist`);
+            return;
+        }
+
+        const [existingUserId] = await db.query(`select Id from Users where UserName = $1`, username);
+        if (existingUserId) {
+            res.status(406).send(`Username "${username}" is already taken`);
+            return;
+        }
+
         const { userid: userId } = await db.one(`
             insert into Users(
                 UserName
@@ -17,11 +98,11 @@ router.post('/', async (req, res, next) => {
                 $1
                 , $2
                 , $3
-                , (select Id from Users where UserName = $4)
+                , $4
             );
 
             select lastval() UserId;
-        `, [username, firstName, lastName, trainerUsername])
+        `, [username, firstName, lastName, trainerId])
         res.json({ userId })
     } catch (error) {
         return next(error)
@@ -35,13 +116,14 @@ router.get('/', async (req, res, next) => {
             username,
             firstname: firstName,
             lastname: lastName,
-            trainerid: trainerId
+            trainerusername: trainerUsername
         } = await db.one(`
-            select Id, UserName, FirstName, LastName, TrainerId 
-            from Users 
+            select u.Id, u.UserName, u.FirstName, u.LastName, t.Name TrainerUsername
+            from Users u
+            left join Users t on t.Id = u.TrainerId
             where UserName = $1`,
             req.query.username)
-        res.json({ id, username, firstName, lastName, trainerId })
+        res.json({ id, username, firstName, lastName, trainerUsername })
     } catch (error) {
         return next(error)
     }
@@ -49,24 +131,22 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:userId/workouts', async (req, res, next) => {
     try {
-        const workouts =
-            await db.query(`
-            select id, name, tags, userid
-            from workout 
-            where userid = $1`,
-                req.params.userId)
         res.json({
-            workouts: workouts.map(({
-                id,
-                name,
-                tags,
-                userid: userId
-            }) => ({
-                id,
-                name,
-                tags,
-                userId
-            }))
+            workouts: await db.query(`
+                    select id, name, tags, userid
+                    from workout 
+                    where userid = $1`,
+                req.params.userId).map(({
+                    id,
+                    name,
+                    tags,
+                    userid: userId
+                }) => ({
+                    id,
+                    name,
+                    tags,
+                    userId
+                }))
         })
     } catch (error) {
         return next(error)
@@ -128,5 +208,67 @@ router.get('/:trainerId/trainer-dashboard', async (req, res, next) => {
         return next(error)
     }
 });
+
+
+router.get(':trainerId/workouts', async (req, res, next) => {
+    try {
+        const { searchText, limit } = req.query;
+        const { trainerId } = req.params;
+        res.json({
+            workouts: await db.query(`
+                select
+                    Id
+                    , Name
+                    , Tags
+                from Workout
+                where Tags like '%$2%' and UserId = $1
+                limit $3;`,
+                trainerId,
+                searchText,
+                limit)
+        })
+    } catch (error) {
+        return next(error)
+    }
+})
+
+router.get(':trainerId/exercises', async (req, res, next) => {
+    try {
+        const { searchText, limit } = req.query;
+        const { trainerId } = req.params;
+        res.json({
+            exercises: await db.query(`
+                select 
+                    Id
+                    , Name
+                    , Tags,
+                    , LinkUrl
+                from Exercise
+                where Tags like '%$2%' and UserId = $1
+                limit $3;`,
+                trainerId,
+                searchText,
+                limit).map(({
+                    id,
+                    name,
+                    tags,
+                    linkurl: linkUrl
+                }) => ({
+                    id,
+                    name,
+                    tags,
+                    targetAreas: await db.query(`
+                            select 
+                                etmg.Id
+                                , tmg.Name 
+                            from ExerciseTargetMuscleGroup etmg 
+                            join TargetMuscleGroup tmg on tmg.Id = etmg.TargetMuscleGroupId 
+                            where etmg.ExerciseId = %1`, id)
+                }))
+        })
+    } catch (error) {
+        return next(error)
+    }
+})
 
 export default router;
