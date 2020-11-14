@@ -16,4 +16,14 @@ router.delete('/:id', async (req, res, next) => {
     }
 })
 
+router.put('/order', async (req, res, next) => {
+    try {
+        const { sessionWorkoutIds } = req.body;
+        await Promise.all(sessionWorkoutIds.map((swid, i) => db.none(`update SessionWorkout set Position = $2 where Id = $1`, swid, i + 1)));
+        res.send()
+    } catch (error) {
+        return next(error)
+    }
+})
+
 export default router;

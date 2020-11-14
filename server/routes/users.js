@@ -18,9 +18,7 @@ router.post('/:trainerId/target-areas', async (req, res, next) => {
         const { name } = req.body;
         const { trainerId } = req.params
         const { targetareaid: targetAreaId } = await db.one(`
-            insert into TargetMuscleGroup(Name, UserId)
-            values ($1, $2);
-
+            insert into TargetMuscleGroup(Name, UserId) values ($1, $2);
             select lastval() targetAreaId;`,
             name,
             trainerId)
@@ -210,5 +208,50 @@ router.get('/:trainerId/trainer-dashboard', async (req, res, next) => {
         return next(error)
     }
 });
+
+
+router.get(':trainerId/workouts', async (req, res, next) => {
+    try {
+        const { searchText, limit } = req.query;
+        const { trainerId } = req.params;
+        res.json({
+            workouts: await db.query(`
+                select
+                    Id
+                    , Name
+                    , Tags
+                from Workout
+                where Tags like '%$2%' and UserId = $1
+                limit $3;`,
+                trainerId,
+                searchText,
+                limit)
+        })
+    } catch (error) {
+        return next(error)
+    }
+})
+
+router.get(':trainerId/exercises', async (req, res, next) => {
+    try {
+        const { searchText, limit } = req.query;
+        const { trainerId } = req.params;
+        res.json({
+            exercises: await db.query(`
+                select 
+                    Id
+                    , Name
+                    , Tags 
+                from Exercise
+                where Tags like '%$2%' and UserId = $1
+                limit $3;`,
+                trainerId,
+                searchText,
+                limit)
+        })
+    } catch (error) {
+        return next(error)
+    }
+})
 
 export default router;

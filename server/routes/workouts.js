@@ -7,32 +7,21 @@ router.put('/:id', async (req, res, next) => {
     try {
         const { id } = req.params;
         const { name, tags } = req.body;
-        await db.none(`
-            udpate workout set name = $2, tags = $3 where id = $1;
-           
-        `, id, name, tags)
+        await db.none(`udpate workout set name = $2, tags = $3 where id = $1;`, id, name, tags)
         res.send()
     } catch (error) {
         return next(error)
     }
 })
 
-router.post('/:trainerId/target-areas', async (req, res, next) => {
+router.post('/:workoutId/excercises/:exerciseId', async (req, res, next) => {
     try {
-
         const { workoutId, exerciseId } = req.params
         const { workoutexerciseid: workoutExerciseId } = await db.one(`
-            insert into WorkoutExercise(
-                WorkoutId
-                , ExerciseId
-            )
-            values (
-                $1
-                , $2
-            );
-
-            select lastval() WorkoutExerciseId;
-        `, workoutId, exerciseId)
+            insert into WorkoutExercise(WorkoutId, ExerciseId) values ($1, $2);
+            select lastval() WorkoutExerciseId;`,
+            workoutId,
+            exerciseId)
         res.json({ workoutExerciseId })
     } catch (error) {
         return next(error)
