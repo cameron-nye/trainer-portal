@@ -1,11 +1,13 @@
-import React, { useState, useRef, useEffect } from "react"
+import React, { useState, useRef, useEffect, useContext } from "react"
 import { HiMenuAlt4, HiOutlineX } from "react-icons/hi"
+import GlobalContext from "../../context/GlobalContext"
 
 import "./index.scss"
 
 const Nav = () => {
 	const [ isOpen, setIsOpen ] = useState(false)
-	const drawer = useRef(null)
+  const drawer = useRef(null)
+  const {user} = useContext(GlobalContext)
 
 	useEffect(
 		() => {
@@ -57,11 +59,7 @@ const Nav = () => {
 	return (
 		<div className="nav">
 			<HiMenuAlt4 onClick={() => setIsOpen(true)} color={"#F2D479"} size={24} className="icon" />
-			<h1>
-				<a href="/">
-					Athena Fitness
-				</a>
-			</h1>
+      {!!user && <h3>{`${user.firstName} ${user.lastName}`}</h3> }
 			<div className={`drawer ${isOpen && "open"}`} ref={drawer}>
 				<ul className="top">
 					<li onClick={() => setIsOpen(false)}>

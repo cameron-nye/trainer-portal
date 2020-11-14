@@ -4,15 +4,11 @@
 	position: relative;
 	padding: 1rem;
 	display: flex;
-	align-items: center;
+  align-items: center;
+  justify-content: space-between;
 	background: $primary;
-	h1 {
-		margin-left: auto;
-		margin-right: auto;
-		a {
-      color: $secondary;
-      font-size: 26px;
-		}
+	h3 {
+		color: $secondary;
 	}
 	.icon {
 		cursor: pointer;
@@ -25,7 +21,7 @@
 		left: calc(-250px - 1rem);
 		top: 0;
 		transition: 0.2s;
-		padding: 1.5rem 1rem;
+		padding: 1rem;
 		padding-left: 0;
 		text-align: right;
 		box-sizing: content-box;
