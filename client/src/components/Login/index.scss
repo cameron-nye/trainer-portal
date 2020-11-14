@@ -1,6 +1,7 @@
 @import '../../index.scss';
 
 .login {
+  width: calc(100vw - 2rem);
 	max-width: 500px;
 	border-radius: 6px;
 	margin-top: 10rem;
@@ -8,7 +9,12 @@
 	box-shadow: 0 3px 7px $primary;
 	margin-left: auto;
 	margin-right: auto;
-	padding-bottom: 2rem;
+  padding-bottom: 2rem;
+  padding-top: 3rem;
+  
+  h1 {
+    margin-bottom: 2rem;
+  }
 
 	div {
 		width: 208px;
