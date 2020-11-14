@@ -29,7 +29,19 @@ router.post('/:trainerId/users', async (req, res, next) => {
     }
 });
 
-
+router.put('/users/:trainerId/users/:traineeId', async (req, res, next) => {
+    try {
+        const { trainerId } = req.params.trainerId;
+        const { traineeId } = req.params.traineeId;
+        const { sessions } = req.body;
+        await db.none(`
+            udpate users set DailySchedule = $3 where Id = $2 and TrainerId = $1;`
+            , trainerId, traineeId, sessions)
+        res.send()
+    } catch (error) {
+        return next(error)
+    }
+})
 
 router.post('/', async (req, res, next) => {
     try {
