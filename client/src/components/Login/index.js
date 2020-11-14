@@ -12,7 +12,8 @@ const Login = () => {
 
 	const handleClick = () => {
 		axios.get(`http://localhost:8080/users?username=${username}`).then(res => {
-				setUser(res.data)
+			setUser(res.data)
+			window.localStorage.setItem("user", JSON.stringify(res.data))
 			history.push("/dashboard")
 		})
 	}

@@ -52,7 +52,10 @@ const Nav = () => {
 		{
 			title: "Sign Out",
 			href: "/",
-			navSection: "bottom"
+      navSection: "bottom",
+      onClick: () => {
+        localStorage.removeItem('user')
+      }
 		}
 	]
 
@@ -76,7 +79,7 @@ const Nav = () => {
 				<ul className="bottom">
 					{navLinks.filter(nl => nl.navSection === "bottom").map((nl, i) => {
 						return (
-							<li key={i}>
+							<li key={i} onClick={nl.onClick ? nl.onClick : () => {}}>
 								<a href={nl.href}>{nl.title}</a>
 							</li>
 						)

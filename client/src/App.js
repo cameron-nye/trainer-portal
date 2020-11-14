@@ -1,4 +1,4 @@
-import React, {useState} from "react"
+import React, { useState } from "react"
 import { Route, Switch } from "react-router-dom"
 import LandingPage from "./components/LandingPage"
 import SignUp from "./components/SignUp/index"
@@ -13,15 +13,15 @@ import GlobalContext from "./context/GlobalContext"
 import "./App.scss"
 
 const App = () => {
-  const [user, setUser] = useState({})
+	const [ user, setUser ] = useState(JSON.parse(localStorage.getItem('user')) || {})
 
 	return (
 		<GlobalContext.Provider
-      value={{
-        user,
-        setUser
-      }}
-    >
+			value={{
+				user,
+				setUser
+			}}
+		>
 			<div className="app">
 				{Object.keys(user).length > 0 && <Nav />}
 				<Switch>
