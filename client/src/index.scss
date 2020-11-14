@@ -3,9 +3,10 @@
 * {
   font-family: 'Dosis', sans-serif;
   color: $text-color;
+  box-sizing: border-box;
 }
 
-body, ul, h1, h2, h3, h4, h5, h6 {
+body, ul, h1, h2, h3, h4, h5, h6, p {
   margin: 0;
   padding: 0;
 }
