@@ -4,10 +4,10 @@ import './index.scss'
 
 const ClientDashboard = () => {
   return (
-    <div>
-      Client Dashboard
+    <div className='client-dashboard'>
+      <h2>Dashboard</h2>
     </div>
   )
 }
 
-export default TraineeDashboard
+export default ClientDashboard

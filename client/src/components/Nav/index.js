@@ -4,7 +4,7 @@ import { HiMenuAlt4, HiOutlineX } from "react-icons/hi"
 import "./index.scss"
 
 const Nav = () => {
-	const [ isOpen, setIsOpen ] = useState(true)
+	const [ isOpen, setIsOpen ] = useState(false)
 	const drawer = useRef(null)
 
 	useEffect(
