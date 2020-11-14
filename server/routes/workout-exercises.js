@@ -13,4 +13,13 @@ router.delete('/:id', async (req, res, next) => {
     }
 })
 
+router.delete('/order', async (req, res, next) => {
+    try {
+        await Promise.all(req.body.workoutExerciseIds.map((weid, i) => db.none(`update WorkoutExercise set Position = $2 where Id = $1`, weid, i + 1)));
+        res.send()
+    } catch (error) {
+        return next(error)
+    }
+})
+
 export default router;

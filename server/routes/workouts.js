@@ -28,14 +28,60 @@ router.post('/:workoutId/excercises/:exerciseId', async (req, res, next) => {
     }
 });
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:workoutId', async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { workoutId } = req.params;
         await db.none(`
             delete from workoutexercise where workoutid = $1;        
             delete from workout where Id = $1;`,
-            id);
+            workoutId);
         res.send();
+    } catch (error) {
+        return next(error)
+    }
+});
+
+router.get('/:workoutId/exercises', async (req, res, next) => {
+    try {
+        const { workoutId } = req.params;
+        const [exercises, exerciseTargetAreas] = await Promise.all([
+            db.query(`
+                select 
+                    Id
+                    , Name
+                    , Tags,
+                    , LinkUrl
+                from WorkoutExercise we
+                join Exercise e on e.Id = we.ExerciseId
+                where we.WorkoutId = $1`,
+                workoutId),
+            db.query(`
+                select 
+                    etmg.Id
+                    , tmg.Name
+                    , etmg.ExerciseId
+                from ExerciseTargetMuscleGroup etmg
+                join TargetMuscleGroup tmg on tmg.Id = etmg.TargetMuscleGroupId
+                join WorkoutExercise we on we.ExerciseId = etmg.ExerciseId
+                where we.WorkoutId = $1`,
+                workoutId)
+        ]);
+        res.json({
+            exercises: exercises.map(({
+                id,
+                name,
+                tags,
+                linkurl: linkUrl
+            }) => ({
+                id,
+                name,
+                tags,
+                linkUrl,
+                targetAreas: exerciseTargetAreas
+                    .filter(eta => eta.exerciseid === id)
+                    .map(({ id, name }) => ({ id, name }))
+            }))
+        });
     } catch (error) {
         return next(error)
     }

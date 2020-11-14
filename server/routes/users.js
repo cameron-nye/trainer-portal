@@ -129,30 +129,6 @@ router.get('/', async (req, res, next) => {
     }
 });
 
-router.get('/:userId/workouts', async (req, res, next) => {
-    try {
-        res.json({
-            workouts: await db.query(`
-                    select id, name, tags, userid
-                    from workout 
-                    where userid = $1`,
-                req.params.userId).map(({
-                    id,
-                    name,
-                    tags,
-                    userid: userId
-                }) => ({
-                    id,
-                    name,
-                    tags,
-                    userId
-                }))
-        })
-    } catch (error) {
-        return next(error)
-    }
-});
-
 router.get('/:traineeId/dashboard', async (req, res, next) => {
     try {
         const { startDate, endDate, limit, showArchived } = req.query;
@@ -209,8 +185,7 @@ router.get('/:trainerId/trainer-dashboard', async (req, res, next) => {
     }
 });
 
-
-router.get(':trainerId/workouts', async (req, res, next) => {
+router.get('/:trainerId/workouts', async (req, res, next) => {
     try {
         const { searchText, limit } = req.query;
         const { trainerId } = req.params;
@@ -225,14 +200,14 @@ router.get(':trainerId/workouts', async (req, res, next) => {
                 limit $3;`,
                 trainerId,
                 searchText,
-                limit)
+                limit || 10)
         })
     } catch (error) {
         return next(error)
     }
 })
 
-router.get(':trainerId/exercises', async (req, res, next) => {
+router.get('/:trainerId/exercises', async (req, res, next) => {
     try {
         const { searchText, limit } = req.query;
         const { trainerId } = req.params;
@@ -266,6 +241,92 @@ router.get(':trainerId/exercises', async (req, res, next) => {
                             where etmg.ExerciseId = %1`, id)
                 }))
         })
+    } catch (error) {
+        return next(error)
+    }
+})
+
+router.post('/:trainerId/exercises', async (req, res, next) => {
+    try {
+        const { trainerId } = req.params;
+        const { name, tags, linkUrl, targetAreaIds } = req.body;
+        const { exerciseid: exerciseId } = await db.one(`
+            insert into Exercise(UserId, Name, Tags, LinkUrl) values ($1, $2, $3, $4);
+            select lastval() ExerciseId;`, trainerId, name, tags, linkUrl);
+        await Promise.all(targetAreaIds.map(taid => db.none(`insert into ExerciseTargetMuscleGroup (ExerciseId, TargetMuscleGroupId)`, exerciseId, taid)));
+        res.json({ exerciseId })
+    } catch (error) {
+        return next(error)
+    }
+})
+
+router.post('/:trainerId/workouts', async (req, res, next) => {
+    try {
+        const { trainerId } = req.params;
+        const { name, tags, linkUrl, targetAreaIds } = req.body;
+        const { exerciseid: exerciseId } = await db.one(`
+            insert into Exercise(UserId, Name, Tags, LinkUrl) values ($1, $2, $3, $4);
+            select lastval() ExerciseId;`, trainerId, name, tags, linkUrl);
+        await Promise.all(targetAreaIds.map(taid => db.none(`insert into ExerciseTargetMuscleGroup (ExerciseId, TargetMuscleGroupId)`, exerciseId, taid)));
+        res.json({ exerciseId })
+    } catch (error) {
+        return next(error)
+    }
+})
+
+router.post('/:trainerId/workouts/:workoutId/exercises', async (req, res, next) => {
+    try {
+        const { trainerId, workoutId } = req.params;
+        const { name, tags, targets } = req.query;
+        const [exercises, exerciseTargetAreas] = await Promise.all([
+            db.query(`
+                select distinct
+                    e.Id
+                    , e.Name
+                    , e.Tags,
+                    , e.LinkUrl
+                from Exercise e 
+                join ExerciseTargetMuscleGroup etmg on etmg.ExerciseId = e.Id
+                join TargetMuscleGroup tmg on tmg.Id = etmg.TargetMuscleGroupId
+                left join WorkoutExercise we on we.ExerciseId = e.Id and we.WorkoutId = $2
+                where 
+                    we.Id is null 
+                    and e.UserId = $1
+                    and ($3 is null or e.Name like '%$3%')
+                    and ($4 is null or e.Tags like '%$4%')
+                    and ($5 is null or tmg.Name like '%$5%');`,
+                trainerId, workoutId, name, tags, targets),
+            db.query(`
+                select distinct
+                    etmg.Id
+                    , tmg.Name
+                    , etmg.ExerciseId
+                from ExerciseTargetMuscleGroup etmg
+                join TargetMuscleGroup tmg on tmg.Id = etmg.TargetMuscleGroupId
+                left join WorkoutExercise we on we.ExerciseId = etmg.ExerciseId and we.WorkoutId = $2
+                where 
+                    we.Id is null 
+                    and tmg.UserId = $1
+                    and ($3 is null or tmg.Name like '%$3%');`,
+                trainerId, workoutId, targets)
+        ]);
+        res.json({
+            exercises: exercises.map(({
+                id,
+                name,
+                tags,
+                linkurl: linkUrl
+            }) => ({
+                id,
+                name,
+                tags,
+                linkUrl,
+                targetAreas: exerciseTargetAreas
+                    .filter(eta => eta.exerciseid === id)
+                    .map(({ id, name }) => ({ id, name }))
+            }))
+        });
+        res.json({ exerciseId })
     } catch (error) {
         return next(error)
     }
