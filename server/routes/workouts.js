@@ -3,6 +3,20 @@ import db from '../db.js';
 
 const router = express.Router();
 
+router.put('/:id', async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { name, tags } = req.body;
+        await db.none(`
+            udpate workout set name = $2, tags = $3 where id = $1;
+           
+        `, id, name, tags)
+        res.send()
+    } catch (error) {
+        return next(error)
+    }
+})
+
 router.post('/:trainerId/target-areas', async (req, res, next) => {
     try {
 

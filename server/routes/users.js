@@ -3,6 +3,16 @@ import db from '../db.js';
 
 const router = express.Router();
 
+router.get('/:trainerId/target-areas', async (req, res, next) => {
+    try {
+        res.json({
+            targetAreas: await db.query(`select id, name from TargetMuscleGroup where userid = $1`, req.params.trainerId)
+        })
+    } catch (error) {
+        return next(error)
+    }
+});
+
 router.post('/:trainerId/target-areas', async (req, res, next) => {
     try {
         const { name } = req.body;
