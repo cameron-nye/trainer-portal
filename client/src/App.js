@@ -13,7 +13,7 @@ import GlobalContext from "./context/GlobalContext"
 import "./App.scss"
 
 const App = () => {
-	const [ user, setUser ] = useState({})
+  const [ user, setUser ] = useState({})
 
 	const history = useHistory()
 
@@ -24,7 +24,7 @@ const App = () => {
 				history.push("/dashboard")
 			}
 		},
-		[ user ]
+		[history]
 	)
 
 	return (
