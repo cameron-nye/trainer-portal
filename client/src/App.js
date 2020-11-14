@@ -1,5 +1,5 @@
-import React, { useState } from "react"
-import { Route, Switch } from "react-router-dom"
+import React, { useState, useEffect } from "react"
+import { Route, Switch, useHistory } from "react-router-dom"
 import LandingPage from "./components/LandingPage"
 import SignUp from "./components/SignUp/index"
 import Login from "./components/Login/index"
@@ -13,7 +13,19 @@ import GlobalContext from "./context/GlobalContext"
 import "./App.scss"
 
 const App = () => {
-	const [ user, setUser ] = useState(JSON.parse(localStorage.getItem('user')) || {})
+	const [ user, setUser ] = useState({})
+
+	const history = useHistory()
+
+	useEffect(
+		() => {
+			if (localStorage.getItem("user")) {
+				setUser(JSON.parse(localStorage.getItem("user")))
+				history.push("/dashboard")
+			}
+		},
+		[ user ]
+	)
 
 	return (
 		<GlobalContext.Provider
