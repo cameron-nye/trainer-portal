@@ -26,7 +26,7 @@ const Nav = () => {
 	const navLinks = [
 		{
 			title: "Schedule Workout",
-			href: "/schedule-workout",
+			href: "/session",
 			navSection: "top"
 		},
 		{

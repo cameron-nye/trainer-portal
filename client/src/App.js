@@ -40,7 +40,7 @@ const App = () => {
 					<Route exact path="/" component={LandingPage} />
 					<Route exact path="/login" component={Login} />
 					<Route exact path="/sign-up" component={SignUp} />
-					<Route exact path="/schedule-workout" component={Session} />
+					<Route exact path="/session" component={Session} />
 					<Route exact path="/clients" component={ClientManager} />
 					<Route exact path="/workout-manager" component={WorkoutManager} />
 					<Route exact path="/exercise-manager" component={ExerciseManager} />
