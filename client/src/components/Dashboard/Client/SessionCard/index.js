@@ -2,10 +2,11 @@ import React from 'react'
 
 import './index.scss'
 
-const SessionCard = () => {
+const SessionCard = ({data: {dueDate, deadline, isCompleted}}) => {
+  
   return (
-    <div className='session-card'>
-      
+    <div className={`session-card ${isCompleted && 'complete'}`}>
+      <p>{dueDate}</p>
     </div>
   )
 }
