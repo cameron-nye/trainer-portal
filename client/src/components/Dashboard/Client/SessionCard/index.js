@@ -4,8 +4,8 @@ import './index.scss'
 
 const SessionCard = () => {
   return (
-    <div>
-      SessionCard
+    <div className='session-card'>
+      
     </div>
   )
 }
