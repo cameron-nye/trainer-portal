@@ -3,11 +3,11 @@ import db from '../db.js';
 
 const router = express.Router();
 
-router.put('/:id', async (req, res, next) => {
+router.put('/:workoutId', async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { workoutId } = req.params;
         const { name, tags } = req.body;
-        await db.none(`udpate workout set name = $2, tags = $3 where id = $1;`, id, name, tags)
+        await db.none(`udpate Workout set Name = $2, Tags = $3 where Id = $1;`, workoutId, name, tags)
         res.send()
     } catch (error) {
         return next(error)

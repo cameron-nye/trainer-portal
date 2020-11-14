@@ -241,13 +241,30 @@ router.get(':trainerId/exercises', async (req, res, next) => {
                 select 
                     Id
                     , Name
-                    , Tags 
+                    , Tags,
+                    , LinkUrl
                 from Exercise
                 where Tags like '%$2%' and UserId = $1
                 limit $3;`,
                 trainerId,
                 searchText,
-                limit)
+                limit).map(({
+                    id,
+                    name,
+                    tags,
+                    linkurl: linkUrl
+                }) => ({
+                    id,
+                    name,
+                    tags,
+                    targetAreas: await db.query(`
+                            select 
+                                etmg.Id
+                                , tmg.Name 
+                            from ExerciseTargetMuscleGroup etmg 
+                            join TargetMuscleGroup tmg on tmg.Id = etmg.TargetMuscleGroupId 
+                            where etmg.ExerciseId = %1`, id)
+                }))
         })
     } catch (error) {
         return next(error)
