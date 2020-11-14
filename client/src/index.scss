@@ -4,3 +4,12 @@
   font-family: 'Dosis', sans-serif;
   color: $text-color;
 }
+
+body, ul, h1 {
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  text-decoration: none;
+}
