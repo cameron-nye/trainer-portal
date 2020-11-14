@@ -1,13 +1,25 @@
-import React from 'react'
+import React, { useState } from "react"
+import {useHistory} from 'react-router-dom'
 
-import './index.scss'
+import "./index.scss"
 
 const Login = () => {
-  return (
-    <div>
-      Login
-    </div>
-  )
+  const [ userName, setUserName ] = useState("")
+  const history = useHistory()
+  
+  const handleClick = () => {
+    history.push('/dashboard')
+  }
+
+	return (
+		<div className="login">
+			<div>
+				<h1>Login</h1>
+				<input type="text" placeholder="Username" onChange={e => setUserName(e.target.value)} />
+        <button onClick={handleClick}>Login</button>
+			</div>
+		</div>
+	)
 }
 
 export default Login
