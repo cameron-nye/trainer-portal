@@ -7,6 +7,7 @@ import sessionRoutes from './routes/sessions.js';
 import exerciseRoutes from './routes/exercises.js';
 import workoutsRoutes from './routes/workouts.js';
 import sessionWorkouts from './routes/sessionWorkouts.js';
+import workoutExercises from './routes/workout-exercises.js'
 
 
 const app = express();
@@ -20,6 +21,7 @@ app.use('/sessions', sessionRoutes);
 app.use('/exercises', exerciseRoutes);
 app.use('/workouts', workoutsRoutes);
 app.use('/session-workouts', sessionWorkouts)
+app.use('/workout-exercises', workoutExercises)
 
 
 
