@@ -12,7 +12,7 @@ const Dashboard = () => {
 	return (
 		<div className="dashboard wrapper">
 			<h2>Dashboard</h2>
-			{user.trainerId ? <ClientDashboard /> : <TrainerDashboard />}
+			{user.trainerUsername ? <ClientDashboard userId={user.id}/> : <TrainerDashboard />}
 		</div>
 	)
 }
