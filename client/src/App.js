@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { Route, Switch, useHistory } from "react-router-dom"
+import { Route, Switch, useHistory, useParams } from "react-router-dom"
 import LandingPage from "./components/LandingPage"
 import SignUp from "./components/SignUp/index"
 import Login from "./components/Login/index"
@@ -15,7 +15,8 @@ import "./App.scss"
 const App = () => {
   const [ user, setUser ] = useState({})
 
-	const history = useHistory()
+  const history = useHistory()
+  const {sessionId} = useParams()
 
 	useEffect(
 		() => {
@@ -40,7 +41,7 @@ const App = () => {
 					<Route exact path="/" component={LandingPage} />
 					<Route exact path="/login" component={Login} />
 					<Route exact path="/sign-up" component={SignUp} />
-					<Route exact path="/session" component={Session} />
+					<Route path="/session/:sessionId?" component={Session} />
 					<Route exact path="/clients" component={ClientManager} />
 					<Route exact path="/workout-manager" component={WorkoutManager} />
 					<Route exact path="/exercise-manager" component={ExerciseManager} />
