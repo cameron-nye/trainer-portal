@@ -13,38 +13,34 @@ import GlobalContext from "./context/GlobalContext"
 import "./App.scss"
 
 const App = () => {
-  const [ user, setUser ] = useState({})
+	const [user, setUser] = useState()
+	const history = useHistory();
 
-	const history = useHistory()
-
-	useEffect(
-		() => {
-			if (localStorage.getItem("user")) {
-				setUser(JSON.parse(localStorage.getItem("user")))
-				history.push("/dashboard")
-			}
-		},
-		[history]
-	)
+	useEffect(() => {
+		const cachedUser = JSON.parse(localStorage.getItem("user"));
+		setUser(cachedUser);
+		if (['/login', '/sign-in', '/'].includes(history.location.pathname) && cachedUser) {
+			history.push("/dashboard")
+		}
+		return () => {
+			setUser(null);
+		}
+	}, [history])
 
 	return (
-		<GlobalContext.Provider
-			value={{
-				user,
-				setUser
-			}}
-		>
+		<GlobalContext.Provider value={{ user, setUser }} >
 			<div className="app">
-				{Object.keys(user).length > 0 && <Nav />}
+				{!!user && <Nav />}
 				<Switch>
 					<Route exact path="/" component={LandingPage} />
 					<Route exact path="/login" component={Login} />
 					<Route exact path="/sign-up" component={SignUp} />
-					<Route exact path="/session" component={Session} />
-					<Route exact path="/clients" component={ClientManager} />
-					<Route exact path="/workout-manager" component={WorkoutManager} />
-					<Route exact path="/exercise-manager" component={ExerciseManager} />
-					<Route exact path="/dashboard" component={Dashboard} />
+					{!!user && <><Route exact path="/session" component={Session} />
+						<Route exact path="/clients" component={ClientManager} />
+						<Route exact path="/workout-manager" component={WorkoutManager} />
+						<Route exact path="/exercise-manager" component={ExerciseManager} />
+						<Route exact path="/dashboard" component={Dashboard} />
+					</>}
 				</Switch>
 			</div>
 		</GlobalContext.Provider>

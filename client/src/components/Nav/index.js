@@ -5,9 +5,9 @@ import GlobalContext from "../../context/GlobalContext"
 import "./index.scss"
 
 const Nav = () => {
-	const [ isOpen, setIsOpen ] = useState(false)
-  const drawer = useRef(null)
-  const {user} = useContext(GlobalContext)
+	const [isOpen, setIsOpen] = useState(false)
+	const drawer = useRef(null)
+	const { user } = useContext(GlobalContext)
 
 	useEffect(
 		() => {
@@ -20,7 +20,7 @@ const Nav = () => {
 			window.addEventListener("click", handleOffClick)
 			return () => window.removeEventListener("click", handleOffClick)
 		},
-		[ isOpen ]
+		[isOpen]
 	)
 
 	const navLinks = [
@@ -52,17 +52,17 @@ const Nav = () => {
 		{
 			title: "Sign Out",
 			href: "/",
-      navSection: "bottom",
-      onClick: () => {
-        localStorage.removeItem('user')
-      }
+			navSection: "bottom",
+			onClick: () => {
+				localStorage.removeItem('user')
+			}
 		}
 	]
 
 	return (
 		<div className="nav">
 			<HiMenuAlt4 onClick={() => setIsOpen(true)} color={"#F2D479"} size={24} className="icon" />
-      {!!user && <h3>{`${user.firstName} ${user.lastName}`}</h3> }
+			{!!user && <h3>{`${user.firstName} ${user.lastName}`}</h3>}
 			<div className={`drawer ${isOpen && "open"}`} ref={drawer}>
 				<ul className="top">
 					<li onClick={() => setIsOpen(false)}>
@@ -79,7 +79,7 @@ const Nav = () => {
 				<ul className="bottom">
 					{navLinks.filter(nl => nl.navSection === "bottom").map((nl, i) => {
 						return (
-							<li key={i} onClick={nl.onClick ? nl.onClick : () => {}}>
+							<li key={i} onClick={nl.onClick ? nl.onClick : () => { }}>
 								<a href={nl.href}>{nl.title}</a>
 							</li>
 						)

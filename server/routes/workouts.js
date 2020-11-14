@@ -49,7 +49,7 @@ router.get('/:workoutId/exercises', async (req, res, next) => {
                 select 
                     Id
                     , Name
-                    , Tags,
+                    , Tags
                     , LinkUrl
                 from WorkoutExercise we
                 join Exercise e on e.Id = we.ExerciseId
