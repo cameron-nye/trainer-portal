@@ -3,6 +3,42 @@ import db from '../db.js';
 
 const router = express.Router();
 
+
+
+router.post('/:trainerId/target-areas', async (req, res, next) => {
+    try {
+        const { name } = req.body;
+        const { trainerId } = req.params
+        const { targetareaid: targetAreaId } = await db.one(`
+            insert into TargetMuscleGroup(
+                Name
+                , UserId
+            )
+            values (
+                $1
+                , $2
+            );
+
+            select lastval() targetAreaId;
+        `, name, trainerId)
+        res.json({ targetAreaId })
+    } catch (error) {
+        return next(error)
+    }
+});
+
+router.delete('/:trainerId/users/:traineeId', async (req, res, next) => {
+    try {
+        const { trainerId, traineeId } = req.params;
+        await db.none(`
+            update users set IsDelted = '1' where id = $2 and trainerId = $1`
+            , trainerId, traineeId)
+        res.send()
+    } catch (error) {
+        return next(error)
+    }
+})
+
 router.post('/:trainerId/users', async (req, res, next) => {
     try {
         const { firstName, lastName, username } = req.body;
