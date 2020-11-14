@@ -2,12 +2,12 @@ import React from 'react'
 
 import './index.scss'
 
-const LandingPage = () => {
+const SignUp = () => {
   return (
     <div>
-      Landing Page
+      Sign Up
     </div>
   )
 }
 
-export default LandingPage
+export default SignUp

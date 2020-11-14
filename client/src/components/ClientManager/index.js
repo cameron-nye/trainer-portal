@@ -2,12 +2,12 @@ import React from 'react'
 
 import './index.scss'
 
-const LandingPage = () => {
+const Clients = () => {
   return (
     <div>
-      Landing Page
+      Clients
     </div>
   )
 }
 
-export default LandingPage
+export default Clients

@@ -2,12 +2,12 @@ import React from 'react'
 
 import './index.scss'
 
-const LandingPage = () => {
+const ExerciseManager = () => {
   return (
     <div>
-      Landing Page
+      Exercise Manager
     </div>
   )
 }
 
-export default LandingPage
+export default ExerciseManager

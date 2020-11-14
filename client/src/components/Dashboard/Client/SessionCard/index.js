@@ -2,12 +2,12 @@ import React from 'react'
 
 import './index.scss'
 
-const LandingPage = () => {
+const SessionCard = () => {
   return (
     <div>
-      Landing Page
+      SessionCard
     </div>
   )
 }
 
-export default LandingPage
+export default SessionCard
