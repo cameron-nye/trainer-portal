@@ -7,8 +7,6 @@ import "./index.scss"
 
 const Dashboard = () => {
 	const { user } = useContext(GlobalContext)
-	console.log("dashboard", user)
-
 	return (
 		<div className="dashboard wrapper">
 			<header>

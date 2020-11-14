@@ -1,0 +1,50 @@
+.workout-manager {
+    header {
+        padding: 2rem;
+        display: flex;
+        align-content: center;
+        justify-content: space-between;
+        button {
+            border: 1px solid;
+            border-radius: .3rem;
+            text-transform: uppercase;
+            padding: .5rem 1rem;
+            cursor: pointer;
+        }
+    }
+    main {
+        padding: 2rem;
+        table {
+            width: 100%;
+            td {
+                padding: .25rem;
+            }
+            tbody tr {
+                cursor: pointer;
+                transition: .2s;
+            }
+            tbody tr:hover {
+                transform: scale(1.005);
+            }
+            thead {
+                font-weight: bold;
+                td {
+                    border-bottom: 1px solid;
+                }
+            }
+        }
+        label {
+            background-color: #c9f0f9;
+            font-size: 12px;
+            border: 1px solid gray;
+            border-radius: 6px;
+            padding: 3px 6px;
+            + label {
+                margin-left: 5px;
+            }
+        }
+    }
+    form {
+        display: grid;
+    }
+}

@@ -6,10 +6,10 @@ import "./index.scss"
 import GlobalContext from "../../context/GlobalContext"
 
 const SignUp = () => {
-	const [ firstName, setFirstName ] = useState("")
-	const [ lastName, setLastName ] = useState("")
-	const [ username, setUsername ] = useState("")
-	const [ trainerUsername, setTrainerUsername ] = useState("")
+	const [firstName, setFirstName] = useState("")
+	const [lastName, setLastName] = useState("")
+	const [username, setUsername] = useState("")
+	const [trainerUsername, setTrainerUsername] = useState("")
 
 	const history = useHistory()
 
@@ -39,7 +39,6 @@ const SignUp = () => {
 				)
 				history.push("/dashboard")
 			})
-			.catch(err => console.log(err))
 	}
 
 	return (

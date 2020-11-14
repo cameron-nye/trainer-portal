@@ -5,21 +5,21 @@ import "./index.scss"
 import Axios from "axios"
 
 const ClientDashboard = ({ userId }) => {
-	const [ completedSessions, setCompletedSessions ] = useState([])
-	const [ pendingSessions, setPendingSessions ] = useState([])
+	const [completedSessions, setCompletedSessions] = useState([])
+	const [pendingSessions, setPendingSessions] = useState([])
 
-  // ONLY USED FOR TEST DATA
+	// ONLY USED FOR TEST DATA
 	useEffect(() => {
 		const sessions = [
 			{
-        id: 1,
+				id: 1,
 				dueDate: "11/13/2020",
 				deadline: null,
 				isCompleted: true,
 				comments: null
 			},
 			{
-        id: 2,
+				id: 2,
 				dueDate: "11/13/2020",
 				deadline: null,
 				isCompleted: false,
@@ -28,10 +28,10 @@ const ClientDashboard = ({ userId }) => {
 		]
 		setCompletedSessions(sessions.filter(s => s.isCompleted === true))
 		setPendingSessions(sessions.filter(s => s.isCompleted === false))
-  }, [])
-  
+	}, [])
 
-  // READY FOR REAL DATA  
+
+	// READY FOR REAL DATA  
 	// useEffect(
 	// 	() => {
 	// 		Axios.get(
@@ -50,29 +50,29 @@ const ClientDashboard = ({ userId }) => {
 
 	return (
 		<div className="client-dashboard">
-      {
-        pendingSessions?.map((ps, i) => {
-          return (
-            <SessionCard
-              data={ps}
-              key={ps + i}
-            />
+			{
+				pendingSessions?.map((ps, i) => {
+					return (
+						<SessionCard
+							data={ps}
+							key={ps + i}
+						/>
 
-          )
-        })
-      }
+					)
+				})
+			}
 			<hr />
-      {
-        completedSessions?.map((cs, i) => {
-          return (
-            <SessionCard
-              data={cs}
-              key={cs + i}
-            />
+			{
+				completedSessions?.map((cs, i) => {
+					return (
+						<SessionCard
+							data={cs}
+							key={cs + i}
+						/>
 
-          )
-        })
-      }
+					)
+				})
+			}
 		</div>
 	)
 }

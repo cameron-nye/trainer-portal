@@ -3,11 +3,24 @@ import db from '../db.js';
 
 const router = express.Router();
 
+router.get('/:workoutId', async (req, res, next) => {
+    try {
+        res.json(await db.one(`select Id, Name, Tags from Workout where Id = $1;`, req.params.workoutId))
+    } catch (error) {
+        return next(error)
+    }
+})
+
 router.put('/:workoutId', async (req, res, next) => {
     try {
         const { workoutId } = req.params;
         const { name, tags } = req.body;
-        await db.none(`udpate Workout set Name = $2, Tags = $3 where Id = $1;`, workoutId, name, tags)
+        await db.query(`
+            update Workout 
+            set 
+                Name = $2
+                , Tags = $3 
+            where Id = $1;`, [workoutId, name, tags])
         res.send()
     } catch (error) {
         return next(error)
@@ -20,8 +33,7 @@ router.post('/:workoutId/excercises/:exerciseId', async (req, res, next) => {
         const { workoutexerciseid: workoutExerciseId } = await db.one(`
             insert into WorkoutExercise(WorkoutId, ExerciseId) values ($1, $2);
             select lastval() WorkoutExerciseId;`,
-            workoutId,
-            exerciseId)
+            [workoutId, exerciseId])
         res.json({ workoutExerciseId })
     } catch (error) {
         return next(error)

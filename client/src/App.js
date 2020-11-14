@@ -7,6 +7,7 @@ import Nav from "./components/Nav/index"
 import Session from "./components/Session/index"
 import ClientManager from "./components/ClientManager/index"
 import WorkoutManager from "./components/WorkoutManager/index"
+import Workout from "./components/Workout/index"
 import ExerciseManager from "./components/ExerciseManager/index"
 import Dashboard from "./components/Dashboard/index"
 import GlobalContext from "./context/GlobalContext"
@@ -38,6 +39,7 @@ const App = () => {
 					{!!user && <><Route path="/session/:sessionId?" component={Session} />
 						<Route exact path="/clients" component={ClientManager} />
 						<Route exact path="/workout-manager" component={WorkoutManager} />
+						<Route exact path="/workout/:workoutId?" component={Workout} />
 						<Route exact path="/exercise-manager" component={ExerciseManager} />
 						<Route exact path="/dashboard" component={Dashboard} />
 					</>}
