@@ -29,14 +29,11 @@ router.post('/:trainerId/users', async (req, res, next) => {
     }
 });
 
-router.put('/users/:trainerId/users/:traineeId', async (req, res, next) => {
+router.put('/:trainerId/users/:traineeId', async (req, res, next) => {
     try {
-        const { trainerId } = req.params.trainerId;
-        const { traineeId } = req.params.traineeId;
+        const { trainerId, traineeId } = req.params;
         const { sessions } = req.body;
-        await db.none(`
-            udpate users set DailySchedule = $3 where Id = $2 and TrainerId = $1;`
-            , trainerId, traineeId, sessions)
+        await db.none(`udpate users set DailySchedule = $3 where Id = $2 and TrainerId = $1;`, trainerId, traineeId, sessions)
         res.send()
     } catch (error) {
         return next(error)
@@ -89,24 +86,22 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:userId/workouts', async (req, res, next) => {
     try {
-        const workouts =
-            await db.query(`
-            select id, name, tags, userid
-            from workout 
-            where userid = $1`,
-                req.params.userId)
         res.json({
-            workouts: workouts.map(({
-                id,
-                name,
-                tags,
-                userid: userId
-            }) => ({
-                id,
-                name,
-                tags,
-                userId
-            }))
+            workouts: await db.query(`
+                    select id, name, tags, userid
+                    from workout 
+                    where userid = $1`,
+                req.params.userId).map(({
+                    id,
+                    name,
+                    tags,
+                    userid: userId
+                }) => ({
+                    id,
+                    name,
+                    tags,
+                    userId
+                }))
         })
     } catch (error) {
         return next(error)
