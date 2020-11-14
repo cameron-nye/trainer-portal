@@ -1,15 +1,20 @@
-import React from 'react'
-import TrainerDashboard from './Trainer/index'
-import ClientDashboard from './Client/index'
+import React, { useContext } from "react"
+import TrainerDashboard from "./Trainer/index"
+import ClientDashboard from "./Client/index"
 
-import './index.scss'
+import GlobalContext from "../../context/GlobalContext"
+import "./index.scss"
 
 const Dashboard = () => {
-  return (
-    <div className='dashboard wrapper'>
-      <ClientDashboard />
-    </div>
-  )
+	const { user } = useContext(GlobalContext)
+	console.log("dashboard", user)
+
+	return (
+		<div className="dashboard wrapper">
+			<h2>Dashboard</h2>
+			{user.trainerId ? <ClientDashboard /> : <TrainerDashboard />}
+		</div>
+	)
 }
 
 export default Dashboard
