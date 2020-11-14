@@ -30,12 +30,74 @@ router.post('/', async (req, res, next) => {
 
 router.get('/', async (req, res, next) => {
     try {
-        const { id, username, firstname: firstName, lastname: lastName, trainerid: trainerId } = await db.one(`
+        const {
+            id,
+            username,
+            firstname: firstName,
+            lastname: lastName,
+            trainerid: trainerId
+        } = await db.one(`
             select Id, UserName, FirstName, LastName, TrainerId 
             from Users 
             where UserName = $1`,
             req.query.username)
         res.json({ id, username, firstName, lastName, trainerId })
+    } catch (error) {
+        return next(error)
+    }
+});
+
+router.get('/:traineeId/dashboard', async (req, res, next) => {
+    try {
+        const { startDate, endDate, limit, showArchived } = req.query;
+        const { traineeId } = req.params;
+        const sessions = await db.query(`
+            select 
+                Id
+                , DueDate
+                , DeadlineDate
+                , CompletedDate
+                , Comments 
+            from Session
+            where UserId = $1`, traineeId);
+        res.json({
+            sessions: sessions.map(({
+                id,
+                duedate: dueDate,
+                deadline,
+                completeddate,
+                comments
+            }) => ({
+                id,
+                dueDate,
+                deadline,
+                isCompleted: !!completeddate,
+                comments
+            }))
+        })
+    } catch (error) {
+        return next(error)
+    }
+});
+
+router.get('/:trainerId/trainer-dashboard', async (req, res, next) => {
+    try {
+        const { trainerId } = req.params;
+        const trainees = await db.query(`
+            select 
+                Id
+                , UserName
+                , FirstName
+                , LastName
+                , DailySchedule
+            from Users
+            where TrainerId = $1`, trainerId);
+        const res = { trainees: [] };
+        for (const { id, username, firstname: firstName, lastname: lastName, dailyschedule: scheduledDays } in trainees) {
+            const sessionDates = await db.query(`select DueDate from Session where UserId = $1`, id);
+            trainees.push({ id, firstName, lastName, username, scheduledDays, sessions: sessionDates.map(s => s.duedate) })
+        }
+        res.json(res)
     } catch (error) {
         return next(error)
     }
